@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corretor Top - Sistema de Cadastro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+        }
+        
+        .sidebar {
+            background-color: var(--dark);
+            color: white;
+            height: calc(100vh - 56px);
+            position: fixed;
+            padding-top: 20px;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 4px;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #1a252f;
+            border-color: #1a252f;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stats-card i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .stats-card h2 {
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .stats-card p {
+            color: #6c757d;
+            margin: 0;
+        }
+        
+        .table th {
+            background-color: var(--light);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-disponivel {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-vendido {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .status-reservado {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .action-btn {
+            padding: 5px;
+            margin: 0 3px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #ccc;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--accent);
+            background-color: #f8f9fa;
+        }
+        
+        .file-upload-area i {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-container .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .search-container input {
+            padding-left: 35px;
+        }
+        
+        .last-import-card {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .form-label {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-building me-2"></i>
+                Corretor Top
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Admin
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configurações</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2 col-md-3 d-md-block sidebar collapse" id="sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#imovelModal">
+                                <i class="fas fa-plus-circle"></i> Cadastrar Imóvel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#importModal">
+                                <i class="fas fa-file-import"></i> Importar Planilha
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="exportarDados()">
+                                <i class="fas fa-download"></i> Exportar Dados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="fazerBackup()">
+                                <i class="fas fa-database"></i> Backup
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#restoreModal">
+                                <i class="fas fa-upload"></i> Restaurar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-10 col-md-9 ms-sm-auto px-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleSidebar">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <i class="fas fa-building"></i>
+                            <h2 id="totalImoveis">0</h2>
+                            <p>Total de Imóveis</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <i class="fas fa-check-circle"></i>
+                            <h2 id="disponiveis">0</h2>
+                            <p>Disponíveis</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <i class="fas fa-tag"></i>
+                            <h2 id="valorTotal">R$ 0</h2>
+                            <p>Valor Total em Imóveis</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <i class="fas fa-city"></i>
+                            <h2 id="totalEmpreendimentos">0</h2>
+                            <p>Empreendimentos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4 last-import-card" id="lastImportSection" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Última Planilha Importada</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleLastImport()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover" id="lastImportTable">
+                                <thead>
+                                    <tr>
+                                        <th>Empreendimento</th>
+                                        <th>Unidade</th>
+                                        <th>Tipologia</th>
+                                        <th>Status</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lastImportTableBody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Lista de Imóveis Cadastrados</h5>
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Buscar em qualquer campo...">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="imoveisTable">
+                                <thead>
+                                    <tr>
+                                        <th>Empreendimento</th>
+                                        <th>Unidade</th>
+                                        <th>Tipologia</th>
+                                        <th>Área Interna</th>
+                                        <th>Status</th>
+                                        <th>Valor</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="imoveisTableBody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="imovelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastrar Novo Imóvel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="imovelForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="regional" class="form-label">Regional</label>
+                                <input type="text" class="form-control" id="regional" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cidade" class="form-label">Cidade</label>
+                                <input type="text" class="form-control" id="cidade" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="unidade" class="form-label">Unidade</label>
+                                <input type="text" class="form-control" id="unidade" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="empreendimento" class="form-label">Empreendimento</label>
+                                <input type="text" class="form-control" id="empreendimento" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bloco" class="form-label">Bloco</label>
+                                <input type="text" class="form-control" id="bloco" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="numero" class="form-label">Número da Unidade</label>
+                                <input type="text" class="form-control" id="numero" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipologia" class="form-label">Tipologia</label>
+                                <input type="text" class="form-control" id="tipologia" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="areaInterna" class="form-label">Área Interna (m²)</label>
+                                <input type="number" step="0.01" class="form-control" id="areaInterna" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="areaQuintal" class="form-label">Área do Quintal (m²)</label>
+                                <input type="number" step="0.01" class="form-control" id="areaQuintal" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="areaVaranda" class="form-label">Área da Varanda (m²)</label>
+                                <input type="number" step="0.01" class="form-control" id="areaVaranda" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="acabamento" class="form-label">Tipo de Acabamento</label>
+                                <select class="form-select" id="acabamento" required>
+                                    <option value="Plus">Plus</option>
+                                    <option value="Padrão">Padrão</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Status da Unidade</label>
+                                <select class="form-select" id="status" required>
+                                    <option value="Disponível">Disponível</option>
+                                    <option value="Vendido">Vendido</option>
+                                    <option value="Reservado">Reservado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="valor" class="form-label">Valor do Imóvel (R$)</label>
+                                <input type="number" class="form-control" id="valor" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="vagasCarro" class="form-label">Vagas Carro</label>
+                                <input type="number" class="form-control" id="vagasCarro" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="vagasMoto" class="form-label">Vagas Moto</label>
+                                <input type="number" class="form-control" id="vagasMoto" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="valorAvaliacao" class="form-label">Valor da Avaliação (R$)</label>
+                                <input type="number" class="form-control" id="valorAvaliacao">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bomPagador" class="form-label">Bom Pagador Total</label>
+                                <input type="number" class="form-control" id="bomPagador" value="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="pagadoria" class="form-label">Pagadoria</label>
+                                <select class="form-select" id="pagadoria">
+                                    <option value="Sim">Sim</option>
+                                    <option value="Não">Não</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="bonus" class="form-label">Bônus</label>
+                                <input type="number" class="form-control" id="bonus" value="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="versaoTabela" class="form-label">Versão da Tabela</label>
+                                <input type="text" class="form-control" id="versaoTabela">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="oportunidades" class="form-label">Oportunidades Abertas</label>
+                                <input type="number" class="form-control" id="oportunidades" value="0">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="salvarImovel">Salvar Imóvel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Importar Planilha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="file-upload-area" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h5>Arraste e solte o arquivo aqui</h5>
+                        <p>ou</p>
+                        <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" hidden>
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Selecionar Arquivo</button>
+                        <p class="mt-2 small">Formatos suportados: XLSX, XLS, CSV</p>
+                    </div>
+                    <div id="fileInfo" class="mt-3 d-none">
+                        <p><strong>Arquivo selecionado:</strong> <span id="fileName"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="importarDados" disabled>Importar Dados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="restoreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Restaurar Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="file-upload-area" id="restoreDropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h5>Arraste e solte o arquivo de backup</h5>
+                        <p>ou</p>
+                        <input type="file" id="restoreFileInput" accept=".json" hidden>
+                        <button class="btn btn-primary" onclick="document.getElementById('restoreFileInput').click()">Selecionar Arquivo</button>
+                        <p class="mt-2 small">Formato suportado: JSON</p>
+                    </div>
+                    <div id="restoreFileInfo" class="mt-3 d-none">
+                        <p><strong>Arquivo selecionado:</strong> <span id="restoreFileName"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="restoreBackupBtn" disabled>Restaurar Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="visualizarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="visualizarModalTitle">Ficha do Imóvel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="visualizarModalBody">
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar dados
+            inicializarDados();
+            carregarImoveis();
+            atualizarEstatisticas();
+            
+            // Toggle sidebar
+            document.getElementById('toggleSidebar').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('collapse');
+            });
+            
+            // Salvar imóvel
+            document.getElementById('salvarImovel').addEventListener('click', function() {
+                salvarImovel();
+            });
+            
+            // Configurar upload de arquivo
+            const fileInput = document.getElementById('fileInput');
+            const dropZone = document.getElementById('dropZone');
+            const importarDadosBtn = document.getElementById('importarDados');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length) {
+                    const file = e.target.files[0];
+                    fileName.textContent = file.name;
+                    fileInfo.classList.remove('d-none');
+                    importarDadosBtn.disabled = false;
+                }
+            });
+            
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#3498db';
+                dropZone.style.backgroundColor = '#f8f9fa';
+            });
+            
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.style.borderColor = '#ccc';
+                dropZone.style.backgroundColor = '';
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#ccc';
+                dropZone.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    const file = e.dataTransfer.files[0];
+                    fileName.textContent = file.name;
+                    fileInfo.classList.remove('d-none');
+                    importarDadosBtn.disabled = false;
+                }
+            });
+            
+            importarDadosBtn.addEventListener('click', function() {
+                importarPlanilha(fileInput.files[0]);
+            });
+            
+            // Configurar busca
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                filtrarImoveis(e.target.value);
+            });
+            
+            // Configurar restauração de backup
+            const restoreFileInput = document.getElementById('restoreFileInput');
+            const restoreDropZone = document.getElementById('restoreDropZone');
+            const restoreBackupBtn = document.getElementById('restoreBackupBtn');
+            const restoreFileInfo = document.getElementById('restoreFileInfo');
+            const restoreFileName = document.getElementById('restoreFileName');
+            
+            restoreFileInput.addEventListener('change', function(e) {
+                if (e.target.files.length) {
+                    const file = e.target.files[0];
+                    restoreFileName.textContent = file.name;
+                    restoreFileInfo.classList.remove('d-none');
+                    restoreBackupBtn.disabled = false;
+                }
+            });
+            
+            restoreDropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                restoreDropZone.style.borderColor = '#3498db';
+                restoreDropZone.style.backgroundColor = '#f8f9fa';
+            });
+            
+            restoreDropZone.addEventListener('dragleave', function() {
+                restoreDropZone.style.borderColor = '#ccc';
+                restoreDropZone.style.backgroundColor = '';
+            });
+            
+            restoreDropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                restoreDropZone.style.borderColor = '#ccc';
+                restoreDropZone.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length) {
+                    restoreFileInput.files = e.dataTransfer.files;
+                    const file = e.dataTransfer.files[0];
+                    restoreFileName.textContent = file.name;
+                    restoreFileInfo.classList.remove('d-none');
+                    restoreBackupBtn.disabled = false;
+                }
+            });
+            
+            restoreBackupBtn.addEventListener('click', function() {
+                restaurarBackup(restoreFileInput.files[0]);
+                bootstrap.Modal.getInstance(document.getElementById('restoreModal')).hide();
+            });
+        });
+        
+        function inicializarDados() {
+            if (!localStorage.getItem('imoveis')) {
+                localStorage.setItem('imoveis', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('lastImport')) {
+                localStorage.setItem('lastImport', JSON.stringify([]));
+            }
+        }
+        
+        function carregarImoveis() {
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            const tableBody = document.getElementById('imoveisTableBody');
+            tableBody.innerHTML = '';
+            
+            imoveis.forEach(imovel => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${imovel.Empreendimento}</td>
+                    <td>${imovel.Unidade}</td>
+                    <td>${imovel.Tipologia}</td>
+                    <td>${imovel['Área interna']} m²</td>
+                    <td><span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade']}</span></td>
+                    <td>R$ ${parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td>
+                        <i class="fas fa-eye text-success action-btn me-2" onclick="visualizarImovel('${imovel.id}')"></i>
+                        <i class="fas fa-edit text-primary action-btn me-2" onclick="editarImovel('${imovel.id}')"></i>
+                        <i class="fas fa-trash text-danger action-btn" onclick="excluirImovel('${imovel.id}')"></i>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Disponível': return 'status-disponivel';
+                case 'Vendido': return 'status-vendido';
+                case 'Reservado': return 'status-reservado';
+                default: return '';
+            }
+        }
+        
+        function atualizarEstatisticas() {
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            
+            document.getElementById('totalImoveis').textContent = imoveis.length;
+            
+            const disponiveis = imoveis.filter(imovel => imovel['Status da unidade'] === 'Disponível').length;
+            document.getElementById('disponiveis').textContent = disponiveis;
+            
+            const valorTotal = imoveis.reduce((total, imovel) => total + parseFloat(imovel['Valor do Imóvel']), 0);
+            document.getElementById('valorTotal').textContent = `R$ ${valorTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            
+            const empreendimentos = [...new Set(imoveis.map(imovel => imovel.Empreendimento))].length;
+            document.getElementById('totalEmpreendimentos').textContent = empreendimentos;
+        }
+        
+        function salvarImovel() {
+            const imovel = {
+                id: Date.now().toString(),
+                Regional: document.getElementById('regional').value,
+                Cidade: document.getElementById('cidade').value,
+                Unidade: document.getElementById('unidade').value,
+                Empreendimento: document.getElementById('empreendimento').value,
+                Bloco: document.getElementById('bloco').value,
+                'Número da Unidade': document.getElementById('numero').value,
+                Tipologia: document.getElementById('tipologia').value,
+                'Área interna': document.getElementById('areaInterna').value,
+                'Área do quintal': document.getElementById('areaQuintal').value,
+                'Área da varanda': document.getElementById('areaVaranda').value,
+                'Tipo de acabamento': document.getElementById('acabamento').value,
+                'Status da unidade': document.getElementById('status').value,
+                'Valor do Imóvel': document.getElementById('valor').value,
+                'Vagas Carro': document.getElementById('vagasCarro').value,
+                'Vagas Moto': document.getElementById('vagasMoto').value,
+                'Valor da Avaliação': document.getElementById('valorAvaliacao').value,
+                'Bom Pagador Total': document.getElementById('bomPagador').value,
+                Pagadoria: document.getElementById('pagadoria').value,
+                Bônus: document.getElementById('bonus').value,
+                'Versao da Tabela': document.getElementById('versaoTabela').value,
+                'Oportunidades abertas': document.getElementById('oportunidades').value
+            };
+            
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            imoveis.push(imovel);
+            localStorage.setItem('imoveis', JSON.stringify(imoveis));
+            
+            // Fechar o modal e recarregar a lista
+            bootstrap.Modal.getInstance(document.getElementById('imovelModal')).hide();
+            carregarImoveis();
+            atualizarEstatisticas();
+            
+            // Limpar o formulário
+            document.getElementById('imovelForm').reset();
+        }
+        
+        function importarPlanilha(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Supondo que a primeira planilha é a que queremos
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                // Processar os dados
+                const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+                const importedData = [];
+                
+                jsonData.forEach(item => {
+                    // Adicionar um ID único para cada imóvel
+                    item.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+                    imoveis.push(item);
+                    importedData.push(item);
+                });
+                
+                localStorage.setItem('imoveis', JSON.stringify(imoveis));
+                localStorage.setItem('lastImport', JSON.stringify(importedData));
+                
+                // Mostrar dados da última importação
+                mostrarUltimaImportacao(importedData);
+                
+                // Fechar o modal e recarregar a lista
+                bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
+                carregarImoveis();
+                atualizarEstatisticas();
+                
+                // Limpar informações do arquivo
+                document.getElementById('fileInfo').classList.add('d-none');
+                document.getElementById('importarDados').disabled = true;
+                document.getElementById('fileInput').value = '';
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function mostrarUltimaImportacao(dados) {
+            if (dados && dados.length > 0) {
+                const tableBody = document.getElementById('lastImportTableBody');
+                tableBody.innerHTML = '';
+                
+                dados.forEach(imovel => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${imovel.Empreendimento || '-'}</td>
+                        <td>${imovel.Unidade || '-'}</td>
+                        <td>${imovel.Tipologia || '-'}</td>
+                        <td><span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade'] || '-'}</span></td>
+                        <td>${imovel['Valor do Imóvel'] ? 'R$ ' + parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                document.getElementById('lastImportSection').style.display = 'block';
+            }
+        }
+        
+        function toggleLastImport() {
+            const section = document.getElementById('lastImportSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function filtrarImoveis(termo) {
+            const linhas = document.getElementById('imoveisTableBody').getElementsByTagName('tr');
+            
+            for (let i = 0; i < linhas.length; i++) {
+                let encontrou = false;
+                const colunas = linhas[i].getElementsByTagName('td');
+                
+                for (let j = 0; j < colunas.length - 1; j++) { // -1 para excluir a coluna de ações
+                    if (colunas[j].textContent.toLowerCase().includes(termo.toLowerCase())) {
+                        encontrou = true;
+                        break;
+                    }
+                }
+                
+                linhas[i].style.display = encontrou ? '' : 'none';
+            }
+        }
+        
+        function visualizarImovel(id) {
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            const imovel = imoveis.find(i => i.id === id);
+            
+            if (imovel) {
+                const modalBody = document.getElementById('visualizarModalBody');
+                modalBody.innerHTML = ''; 
+                
+                const formatado = {
+                    "Regional": imovel.Regional,
+                    "Cidade": imovel.Cidade,
+                    "Empreendimento": imovel.Empreendimento,
+                    "Unidade": imovel.Unidade,
+                    "Bloco": imovel.Bloco,
+                    "Número da Unidade": imovel['Número da Unidade'],
+                    "Tipologia": imovel.Tipologia,
+                    "Área Interna (m²)": imovel['Área interna'],
+                    "Área do Quintal (m²)": imovel['Área do quintal'],
+                    "Área da Varanda (m²)": imovel['Área da varanda'],
+                    "Tipo de Acabamento": imovel['Tipo de acabamento'],
+                    "Status da Unidade": `<span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade']}</span>`,
+                    "Valor do Imóvel": `R$ ${parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`,
+                    "Vagas Carro": imovel['Vagas Carro'],
+                    "Vagas Moto": imovel['Vagas Moto'],
+                    "Valor da Avaliação": imovel['Valor da Avaliação'] ? `R$ ${parseFloat(imovel['Valor da Avaliação']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Não informado',
+                    "Bom Pagador Total": imovel['Bom Pagador Total'],
+                    "Pagadoria": imovel.Pagadoria,
+                    "Bônus": imovel.Bônus,
+                    "Versão da Tabela": imovel['Versao da Tabela'],
+                    "Oportunidades Abertas": imovel['Oportunidades abertas']
+                };
+                
+                for (const key in formatado) {
+                    const row = document.createElement('div');
+                    row.classList.add('row', 'mb-2');
+                    row.innerHTML = `
+                        <div class="col-4"><strong>${key}:</strong></div>
+                        <div class="col-8">${formatado[key]}</div>
+                    `;
+                    modalBody.appendChild(row);
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('visualizarModal'));
+                modal.show();
+            }
+        }
+        
+        function editarImovel(id) {
+            alert(`Função de edição não implementada. ID: ${id}`);
+        }
+        
+        function excluirImovel(id) {
+            if (confirm('Tem certeza que deseja excluir este imóvel?')) {
+                let imoveis = JSON.parse(localStorage.getItem('imoveis'));
+                imoveis = imoveis.filter(imovel => imovel.id !== id);
+                localStorage.setItem('imoveis', JSON.stringify(imoveis));
+                
+                carregarImoveis();
+                atualizarEstatisticas();
+            }
+        }
+        
+        function exportarDados() {
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            const worksheet = XLSX.utils.json_to_sheet(imoveis);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Imóveis");
+            XLSX.writeFile(workbook, "imoveis_exportados.xlsx");
+        }
+        
+        function fazerBackup() {
+            const imoveis = localStorage.getItem('imoveis');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(imoveis);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "backup_imoveis_" + new Date().toISOString().slice(0, 10) + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+        
+        function restaurarBackup(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    localStorage.setItem('imoveis', JSON.stringify(data));
+                    carregarImoveis();
+                    atualizarEstatisticas();
+                    alert('Backup restaurado com sucesso!');
+                } catch (error) {
+                    alert('Erro ao restaurar backup. Arquivo inválido.');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
