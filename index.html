@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corretor Top - Sistema de Cadastro</title>
+    <title>Imobiliária Prime - Sistema de Cadastro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -31,6 +32,8 @@
             height: calc(100vh - 56px);
             position: fixed;
             padding-top: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
         }
         
         .sidebar .nav-link {
@@ -54,6 +57,11 @@
         .main-content {
             margin-left: 250px;
             padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
         }
         
         .card {
@@ -213,14 +221,60 @@
         .form-label {
             font-weight: 500;
         }
+        
+        .imovel-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .detail-group {
+            margin-bottom: 15px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.1rem;
+        }
+        
+        .detail-card {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .detail-section-title {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .truncate-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
     </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-building me-2"></i>
-                Corretor Top
+                Imobiliária Prime
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -244,7 +298,8 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-2 col-md-3 d-md-block sidebar collapse" id="sidebar">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 d-md-block sidebar" id="sidebar">
                 <div class="position-sticky">
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -281,7 +336,8 @@
                 </div>
             </div>
 
-            <div class="col-lg-10 col-md-9 ms-sm-auto px-4 main-content">
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 ms-sm-auto px-4 main-content" id="mainContent">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
@@ -291,6 +347,7 @@
                     </div>
                 </div>
 
+                <!-- Stats Cards -->
                 <div class="row mb-4">
                     <div class="col-xl-3 col-md-6 mb-4">
                         <div class="card stats-card">
@@ -322,6 +379,7 @@
                     </div>
                 </div>
 
+                <!-- Última Importação -->
                 <div class="card mb-4 last-import-card" id="lastImportSection" style="display: none;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Última Planilha Importada</h5>
@@ -342,12 +400,14 @@
                                     </tr>
                                 </thead>
                                 <tbody id="lastImportTableBody">
-                                    </tbody>
+                                    <!-- Dados da última importação serão inseridos aqui -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
+                <!-- Table -->
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Lista de Imóveis Cadastrados</h5>
@@ -371,7 +431,8 @@
                                     </tr>
                                 </thead>
                                 <tbody id="imoveisTableBody">
-                                    </tbody>
+                                    <!-- Os dados serão inseridos aqui via JavaScript -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -380,15 +441,17 @@
         </div>
     </div>
 
+    <!-- Modal para Cadastrar Imóvel -->
     <div class="modal fade" id="imovelModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Novo Imóvel</h5>
+                    <h5 class="modal-title" id="imovelModalTitle">Cadastrar Novo Imóvel</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="imovelForm">
+                        <input type="hidden" id="imovelId">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="regional" class="form-label">Regional</label>
@@ -495,6 +558,26 @@
         </div>
     </div>
 
+    <!-- Modal para Visualizar Imóvel -->
+    <div class="modal fade" id="viewImovelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do Imóvel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="viewImovelBody">
+                    <!-- Conteúdo será preenchido via JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="editarImovelBtn">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Importar Planilha -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -523,6 +606,7 @@
         </div>
     </div>
 
+    <!-- Modal para Restaurar Backup -->
     <div class="modal fade" id="restoreModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -551,25 +635,12 @@
         </div>
     </div>
 
-    <div class="modal fade" id="visualizarModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="visualizarModalTitle">Ficha do Imóvel</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="visualizarModalBody">
-                    </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
+        // Variável global para armazenar o imóvel sendo visualizado/editado
+        let currentImovelId = null;
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Inicializar dados
             inicializarDados();
@@ -578,7 +649,15 @@
             
             // Toggle sidebar
             document.getElementById('toggleSidebar').addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('collapse');
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.toggle('collapse');
+                    mainContent.classList.toggle('expanded');
+                } else {
+                    sidebar.classList.toggle('collapse');
+                }
             });
             
             // Salvar imóvel
@@ -681,6 +760,14 @@
                 restaurarBackup(restoreFileInput.files[0]);
                 bootstrap.Modal.getInstance(document.getElementById('restoreModal')).hide();
             });
+            
+            // Configurar botão de editar na visualização
+            document.getElementById('editarImovelBtn').addEventListener('click', function() {
+                if (currentImovelId) {
+                    bootstrap.Modal.getInstance(document.getElementById('viewImovelModal')).hide();
+                    editarImovel(currentImovelId);
+                }
+            });
         });
         
         function inicializarDados() {
@@ -700,16 +787,16 @@
             imoveis.forEach(imovel => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${imovel.Empreendimento}</td>
-                    <td>${imovel.Unidade}</td>
-                    <td>${imovel.Tipologia}</td>
-                    <td>${imovel['Área interna']} m²</td>
-                    <td><span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade']}</span></td>
-                    <td>R$ ${parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td class="cursor-pointer truncate-text" onclick="visualizarImovel('${imovel.id}')" title="${imovel.Empreendimento}">${imovel.Empreendimento}</td>
+                    <td class="cursor-pointer" onclick="visualizarImovel('${imovel.id}')">${imovel.Unidade}</td>
+                    <td class="cursor-pointer" onclick="visualizarImovel('${imovel.id}')">${imovel.Tipologia}</td>
+                    <td class="cursor-pointer" onclick="visualizarImovel('${imovel.id}')">${imovel['Área interna']} m²</td>
+                    <td class="cursor-pointer" onclick="visualizarImovel('${imovel.id}')"><span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade']}</span></td>
+                    <td class="cursor-pointer" onclick="visualizarImovel('${imovel.id}')">R$ ${parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                     <td>
-                        <i class="fas fa-eye text-success action-btn me-2" onclick="visualizarImovel('${imovel.id}')"></i>
-                        <i class="fas fa-edit text-primary action-btn me-2" onclick="editarImovel('${imovel.id}')"></i>
-                        <i class="fas fa-trash text-danger action-btn" onclick="excluirImovel('${imovel.id}')"></i>
+                        <i class="fas fa-eye text-info action-btn" onclick="visualizarImovel('${imovel.id}')" title="Visualizar"></i>
+                        <i class="fas fa-edit text-primary action-btn" onclick="editarImovel('${imovel.id}')" title="Editar"></i>
+                        <i class="fas fa-trash text-danger action-btn" onclick="excluirImovel('${imovel.id}')" title="Excluir"></i>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -741,8 +828,8 @@
         }
         
         function salvarImovel() {
+            const imovelId = document.getElementById('imovelId').value;
             const imovel = {
-                id: Date.now().toString(),
                 Regional: document.getElementById('regional').value,
                 Cidade: document.getElementById('cidade').value,
                 Unidade: document.getElementById('unidade').value,
@@ -766,154 +853,185 @@
                 'Oportunidades abertas': document.getElementById('oportunidades').value
             };
             
-            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
-            imoveis.push(imovel);
+            let imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            
+            if (imovelId) {
+                // Editar imóvel existente
+                const index = imoveis.findIndex(i => i.id === imovelId);
+                if (index !== -1) {
+                    imoveis[index] = { ...imoveis[index], ...imovel };
+                }
+            } else {
+                // Adicionar novo imóvel
+                imovel.id = Date.now().toString();
+                imoveis.push(imovel);
+            }
+            
             localStorage.setItem('imoveis', JSON.stringify(imoveis));
             
-            // Fechar o modal e recarregar a lista
+            // Fechar modal e atualizar tabela
             bootstrap.Modal.getInstance(document.getElementById('imovelModal')).hide();
             carregarImoveis();
             atualizarEstatisticas();
             
-            // Limpar o formulário
+            // Limpar formulário
             document.getElementById('imovelForm').reset();
-        }
-        
-        function importarPlanilha(file) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Supondo que a primeira planilha é a que queremos
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                
-                // Processar os dados
-                const imoveis = JSON.parse(localStorage.getItem('imoveis'));
-                const importedData = [];
-                
-                jsonData.forEach(item => {
-                    // Adicionar um ID único para cada imóvel
-                    item.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-                    imoveis.push(item);
-                    importedData.push(item);
-                });
-                
-                localStorage.setItem('imoveis', JSON.stringify(imoveis));
-                localStorage.setItem('lastImport', JSON.stringify(importedData));
-                
-                // Mostrar dados da última importação
-                mostrarUltimaImportacao(importedData);
-                
-                // Fechar o modal e recarregar a lista
-                bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
-                carregarImoveis();
-                atualizarEstatisticas();
-                
-                // Limpar informações do arquivo
-                document.getElementById('fileInfo').classList.add('d-none');
-                document.getElementById('importarDados').disabled = true;
-                document.getElementById('fileInput').value = '';
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-        
-        function mostrarUltimaImportacao(dados) {
-            if (dados && dados.length > 0) {
-                const tableBody = document.getElementById('lastImportTableBody');
-                tableBody.innerHTML = '';
-                
-                dados.forEach(imovel => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${imovel.Empreendimento || '-'}</td>
-                        <td>${imovel.Unidade || '-'}</td>
-                        <td>${imovel.Tipologia || '-'}</td>
-                        <td><span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade'] || '-'}</span></td>
-                        <td>${imovel['Valor do Imóvel'] ? 'R$ ' + parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-                
-                document.getElementById('lastImportSection').style.display = 'block';
-            }
-        }
-        
-        function toggleLastImport() {
-            const section = document.getElementById('lastImportSection');
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
-        }
-        
-        function filtrarImoveis(termo) {
-            const linhas = document.getElementById('imoveisTableBody').getElementsByTagName('tr');
-            
-            for (let i = 0; i < linhas.length; i++) {
-                let encontrou = false;
-                const colunas = linhas[i].getElementsByTagName('td');
-                
-                for (let j = 0; j < colunas.length - 1; j++) { // -1 para excluir a coluna de ações
-                    if (colunas[j].textContent.toLowerCase().includes(termo.toLowerCase())) {
-                        encontrou = true;
-                        break;
-                    }
-                }
-                
-                linhas[i].style.display = encontrou ? '' : 'none';
-            }
+            document.getElementById('imovelId').value = '';
         }
         
         function visualizarImovel(id) {
             const imoveis = JSON.parse(localStorage.getItem('imoveis'));
             const imovel = imoveis.find(i => i.id === id);
             
-            if (imovel) {
-                const modalBody = document.getElementById('visualizarModalBody');
-                modalBody.innerHTML = ''; 
-                
-                const formatado = {
-                    "Regional": imovel.Regional,
-                    "Cidade": imovel.Cidade,
-                    "Empreendimento": imovel.Empreendimento,
-                    "Unidade": imovel.Unidade,
-                    "Bloco": imovel.Bloco,
-                    "Número da Unidade": imovel['Número da Unidade'],
-                    "Tipologia": imovel.Tipologia,
-                    "Área Interna (m²)": imovel['Área interna'],
-                    "Área do Quintal (m²)": imovel['Área do quintal'],
-                    "Área da Varanda (m²)": imovel['Área da varanda'],
-                    "Tipo de Acabamento": imovel['Tipo de acabamento'],
-                    "Status da Unidade": `<span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade']}</span>`,
-                    "Valor do Imóvel": `R$ ${parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`,
-                    "Vagas Carro": imovel['Vagas Carro'],
-                    "Vagas Moto": imovel['Vagas Moto'],
-                    "Valor da Avaliação": imovel['Valor da Avaliação'] ? `R$ ${parseFloat(imovel['Valor da Avaliação']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Não informado',
-                    "Bom Pagador Total": imovel['Bom Pagador Total'],
-                    "Pagadoria": imovel.Pagadoria,
-                    "Bônus": imovel.Bônus,
-                    "Versão da Tabela": imovel['Versao da Tabela'],
-                    "Oportunidades Abertas": imovel['Oportunidades abertas']
-                };
-                
-                for (const key in formatado) {
-                    const row = document.createElement('div');
-                    row.classList.add('row', 'mb-2');
-                    row.innerHTML = `
-                        <div class="col-4"><strong>${key}:</strong></div>
-                        <div class="col-8">${formatado[key]}</div>
-                    `;
-                    modalBody.appendChild(row);
-                }
-                
-                const modal = new bootstrap.Modal(document.getElementById('visualizarModal'));
-                modal.show();
-            }
+            if (!imovel) return;
+            
+            currentImovelId = id;
+            
+            const modalBody = document.getElementById('viewImovelBody');
+            modalBody.innerHTML = `
+                <div class="imovel-details-grid">
+                    <div class="detail-card">
+                        <h5 class="detail-section-title">Informações Básicas</h5>
+                        <div class="detail-group">
+                            <div class="detail-label">Empreendimento</div>
+                            <div class="detail-value">${imovel.Empreendimento}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Unidade</div>
+                            <div class="detail-value">${imovel.Unidade}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Regional</div>
+                            <div class="detail-value">${imovel.Regional}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Cidade</div>
+                            <div class="detail-value">${imovel.Cidade}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Bloco</div>
+                            <div class="detail-value">${imovel.Bloco}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Número da Unidade</div>
+                            <div class="detail-value">${imovel['Número da Unidade']}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h5 class="detail-section-title">Características</h5>
+                        <div class="detail-group">
+                            <div class="detail-label">Tipologia</div>
+                            <div class="detail-value">${imovel.Tipologia}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Área Interna</div>
+                            <div class="detail-value">${imovel['Área interna']} m²</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Área do Quintal</div>
+                            <div class="detail-value">${imovel['Área do quintal'] || 0} m²</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Área da Varanda</div>
+                            <div class="detail-value">${imovel['Área da varanda'] || 0} m²</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Tipo de Acabamento</div>
+                            <div class="detail-value">${imovel['Tipo de acabamento']}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value"><span class="status-badge ${getStatusClass(imovel['Status da unidade'])}">${imovel['Status da unidade']}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h5 class="detail-section-title">Valores</h5>
+                        <div class="detail-group">
+                            <div class="detail-label">Valor do Imóvel</div>
+                            <div class="detail-value">R$ ${parseFloat(imovel['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Valor da Avaliação</div>
+                            <div class="detail-value">${imovel['Valor da Avaliação'] ? 'R$ ' + parseFloat(imovel['Valor da Avaliação']).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : 'Não informado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Bom Pagador Total</div>
+                            <div class="detail-value">${imovel['Bom Pagador Total'] ? 'R$ ' + parseFloat(imovel['Bom Pagador Total']).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : 'Não informado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Bônus</div>
+                            <div class="detail-value">${imovel.Bônus ? 'R$ ' + parseFloat(imovel.Bônus).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : 'Não informado'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h5 class="detail-section-title">Outras Informações</h5>
+                        <div class="detail-group">
+                            <div class="detail-label">Vagas Carro</div>
+                            <div class="detail-value">${imovel['Vagas Carro'] || 0}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Vagas Moto</div>
+                            <div class="detail-value">${imovel['Vagas Moto'] || 0}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Pagadoria</div>
+                            <div class="detail-value">${imovel.Pagadoria || 'Não informado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Versão da Tabela</div>
+                            <div class="detail-value">${imovel['Versao da Tabela'] || 'Não informado'}</div>
+                        </div>
+                        <div class="detail-group">
+                            <div class="detail-label">Oportunidades Abertas</div>
+                            <div class="detail-value">${imovel['Oportunidades abertas'] || 0}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const viewModal = new bootstrap.Modal(document.getElementById('viewImovelModal'));
+            viewModal.show();
         }
         
         function editarImovel(id) {
-            alert(`Função de edição não implementada. ID: ${id}`);
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            const imovel = imoveis.find(i => i.id === id);
+            
+            if (!imovel) return;
+            
+            // Preencher formulário com dados do imóvel
+            document.getElementById('imovelId').value = imovel.id;
+            document.getElementById('regional').value = imovel.Regional || '';
+            document.getElementById('cidade').value = imovel.Cidade || '';
+            document.getElementById('unidade').value = imovel.Unidade || '';
+            document.getElementById('empreendimento').value = imovel.Empreendimento || '';
+            document.getElementById('bloco').value = imovel.Bloco || '';
+            document.getElementById('numero').value = imovel['Número da Unidade'] || '';
+            document.getElementById('tipologia').value = imovel.Tipologia || '';
+            document.getElementById('areaInterna').value = imovel['Área interna'] || '';
+            document.getElementById('areaQuintal').value = imovel['Área do quintal'] || '';
+            document.getElementById('areaVaranda').value = imovel['Área da varanda'] || '';
+            document.getElementById('acabamento').value = imovel['Tipo de acabamento'] || '';
+            document.getElementById('status').value = imovel['Status da unidade'] || '';
+            document.getElementById('valor').value = imovel['Valor do Imóvel'] || '';
+            document.getElementById('vagasCarro').value = imovel['Vagas Carro'] || '';
+            document.getElementById('vagasMoto').value = imovel['Vagas Moto'] || '';
+            document.getElementById('valorAvaliacao').value = imovel['Valor da Avaliação'] || '';
+            document.getElementById('bomPagador').value = imovel['Bom Pagador Total'] || '';
+            document.getElementById('pagadoria').value = imovel.Pagadoria || '';
+            document.getElementById('bonus').value = imovel.Bônus || '';
+            document.getElementById('versaoTabela').value = imovel['Versao da Tabela'] || '';
+            document.getElementById('oportunidades').value = imovel['Oportunidades abertas'] || '';
+            
+            // Alterar título do modal
+            document.getElementById('imovelModalTitle').textContent = 'Editar Imóvel';
+            
+            // Abrir modal
+            const imovelModal = new bootstrap.Modal(document.getElementById('imovelModal'));
+            imovelModal.show();
         }
         
         function excluirImovel(id) {
@@ -927,41 +1045,185 @@
             }
         }
         
+        function filtrarImoveis(termo) {
+            const linhas = document.querySelectorAll('#imoveisTableBody tr');
+            termo = termo.toLowerCase();
+            
+            linhas.forEach(linha => {
+                const textoLinha = linha.textContent.toLowerCase();
+                if (textoLinha.includes(termo)) {
+                    linha.style.display = '';
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+        }
+        
+        function importarPlanilha(arquivo) {
+            if (!arquivo) return;
+            
+            const leitor = new FileReader();
+            
+            leitor.onload = function(e) {
+                const dados = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(dados, { type: 'array' });
+                
+                // Pegar a primeira planilha
+                const primeiraPlanilha = workbook.Sheets[workbook.SheetNames[0]];
+                
+                // Converter para JSON
+                const dadosJson = XLSX.utils.sheet_to_json(primeiraPlanilha);
+                
+                if (dadosJson.length === 0) {
+                    alert('A planilha está vazia ou não pôde ser processada.');
+                    return;
+                }
+                
+                // Processar dados
+                const imoveisImportados = processarDadosImportados(dadosJson);
+                
+                // Salvar dados importados para exibição
+                localStorage.setItem('lastImport', JSON.stringify(imoveisImportados));
+                
+                // Adicionar ao armazenamento existente
+                const imoveisAtuais = JSON.parse(localStorage.getItem('imoveis'));
+                const novosImoveis = [...imoveisAtuais, ...imoveisImportados];
+                localStorage.setItem('imoveis', JSON.stringify(novosImoveis));
+                
+                // Atualizar interface
+                carregarImoveis();
+                atualizarEstatisticas();
+                exibirUltimaImportacao(imoveisImportados);
+                
+                // Fechar modal
+                bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
+                
+                alert(`Importação concluída! ${imoveisImportados.length} imóveis importados com sucesso.`);
+            };
+            
+            leitor.readAsArrayBuffer(arquivo);
+        }
+        
+        function processarDadosImportados(dados) {
+            return dados.map((item, index) => {
+                return {
+                    id: Date.now().toString() + index,
+                    Regional: item.Regional || item.regional || '',
+                    Cidade: item.Cidade || item.cidade || '',
+                    Unidade: item.Unidade || item.unidade || '',
+                    Empreendimento: item.Empreendimento || item.empreendimento || '',
+                    Bloco: item.Bloco || item.bloco || '',
+                    'Número da Unidade': item['Número da Unidade'] || item.numero || item['Número'] || '',
+                    Tipologia: item.Tipologia || item.tipologia || '',
+                    'Área interna': item['Área interna'] || item.area || item['Área'] || 0,
+                    'Área do quintal': item['Área do quintal'] || item.quintal || item['Quintal'] || 0,
+                    'Área da varanda': item['Área da varanda'] || item.varanda || item['Varanda'] || 0,
+                    'Tipo de acabamento': item['Tipo de acabamento'] || item.acabamento || item['Acabamento'] || '',
+                    'Status da unidade': item['Status da unidade'] || item.status || item['Status'] || 'Disponível',
+                    'Valor do Imóvel': item['Valor do Imóvel'] || item.valor || item['Valor'] || 0,
+                    'Vagas Carro': item['Vagas Carro'] || item.vagas || item['Vagas'] || 0,
+                    'Vagas Moto': item['Vagas Moto'] || item.vagasmoto || item['Vagas Moto'] || 0,
+                    'Valor da Avaliação': item['Valor da Avaliação'] || item.avaliacao || item['Avaliação'] || 0,
+                    'Bom Pagador Total': item['Bom Pagador Total'] || item.bompagador || item['Bom Pagador'] || 0,
+                    Pagadoria: item.Pagadoria || item.pagadoria || '',
+                    Bônus: item.Bônus || item.bonus || 0,
+                    'Versao da Tabela': item['Versao da Tabela'] || item.versao || item['Versão'] || '',
+                    'Oportunidades abertas': item['Oportunidades abertas'] || item.oportunidades || item['Oportunidades'] || 0
+                };
+            });
+        }
+        
+        function exibirUltimaImportacao(dados) {
+            const tableBody = document.getElementById('lastImportTableBody');
+            tableBody.innerHTML = '';
+            
+            dados.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.Empreendimento}</td>
+                    <td>${item.Unidade}</td>
+                    <td>${item.Tipologia}</td>
+                    <td><span class="status-badge ${getStatusClass(item['Status da unidade'])}">${item['Status da unidade']}</span></td>
+                    <td>R$ ${parseFloat(item['Valor do Imóvel']).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            document.getElementById('lastImportSection').style.display = 'block';
+        }
+        
+        function toggleLastImport() {
+            const section = document.getElementById('lastImportSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+        
         function exportarDados() {
             const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            
+            if (imoveis.length === 0) {
+                alert('Não há dados para exportar.');
+                return;
+            }
+            
+            // Criar planilha
             const worksheet = XLSX.utils.json_to_sheet(imoveis);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Imóveis");
-            XLSX.writeFile(workbook, "imoveis_exportados.xlsx");
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Imóveis');
+            
+            // Gerar arquivo
+            XLSX.writeFile(workbook, 'imoveis_exportados.xlsx');
         }
         
         function fazerBackup() {
-            const imoveis = localStorage.getItem('imoveis');
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(imoveis);
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "backup_imoveis_" + new Date().toISOString().slice(0, 10) + ".json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            const imoveis = JSON.parse(localStorage.getItem('imoveis'));
+            
+            if (imoveis.length === 0) {
+                alert('Não há dados para fazer backup.');
+                return;
+            }
+            
+            const dados = JSON.stringify(imoveis);
+            const blob = new Blob([dados], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_imoveis_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Backup realizado com sucesso!');
         }
         
-        function restaurarBackup(file) {
-            const reader = new FileReader();
+        function restaurarBackup(arquivo) {
+            if (!arquivo) return;
             
-            reader.onload = function(e) {
+            const leitor = new FileReader();
+            
+            leitor.onload = function(e) {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    localStorage.setItem('imoveis', JSON.stringify(data));
+                    const dados = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(dados)) {
+                        throw new Error('Formato de arquivo inválido.');
+                    }
+                    
+                    // Substituir dados atuais
+                    localStorage.setItem('imoveis', JSON.stringify(dados));
+                    
+                    // Atualizar interface
                     carregarImoveis();
                     atualizarEstatisticas();
+                    
                     alert('Backup restaurado com sucesso!');
-                } catch (error) {
-                    alert('Erro ao restaurar backup. Arquivo inválido.');
+                } catch (erro) {
+                    alert('Erro ao restaurar backup: ' + erro.message);
                 }
             };
             
-            reader.readAsText(file);
+            leitor.readAsText(arquivo);
         }
     </script>
 </body>
